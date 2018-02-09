@@ -1,18 +1,17 @@
 
 class tada::install (
   $fpacktgz    = hiera('fpacktgz', 'puppet:///modules/tada/fpack-bin-centos-6.6.tgz'),
-  $irodstgz    = hiera('irodstgz', 'puppet:///tada/irods-3.3.1.tgz'),
-  $tadaversion = hiera('tadaversion', 'master'),
+  $tadanatversion = hiera('tadanatversion', 'master'),
   $dataqversion = hiera('dataqversion', 'master'),
   ) {
-  notice("Loading tada::install; tadaversion=${tadaversion}, dataqversion=${dataqversion}")
+  notice("Loading tada::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
 
   # Top-level dependency to support full tada re-provision
   # To force re-provision: "rm /opt/tada-release" on BOTH mtn and valley
   $stamp=strftime("%Y-%m-%d %H:%M:%S")
   exec { 'provision tada':
     path    => '/usr/bin:/usr/sbin:/bin',
-    command => "rm -rf /etc/tada/ /var/log/tada /var/run/tada /home/tada/.tada /home/tada/.irods /home/tester/.tada /home/tester/.irods",
+    command => "rm -rf /etc/tada/ /var/log/tada /var/run/tada /home/tada/.tada  /home/tester/.tada",
     onlyif => 'test \! -f /opt/tada-release',
     } ->
    file { '/opt/tada-release':
@@ -21,29 +20,15 @@ class tada::install (
     content => "$stamp
 ",
     notify  => [File[#'/var/tada', # do NOT change history on reprovision!
-                     '/etc/tada',
-                     '/var/log/tada',
-                     '/var/run/tada',
-                     '/home/tada/.tada',
-                     '/home/tada/.irods',
-                     '/home/tester/.tada',
-                     '/home/tester/.irods'
-                     ],
-                Vcsrepo['/opt/tada',
-                        '/opt/tada-cli',
-                        '/opt/data-queue'
-                        ]
+                     '/etc/tada', '/var/log/tada', '/var/run/tada',
+                     '/home/tada/.tada', '/home/tester/.tada', ],
+                Vcsrepo['/opt/tada', '/opt/tada-cli','/opt/data-queue' ]
                 ]
   }
   
   # these are also given by: puppet-sdm
   ensure_resource('package', ['git', 'libyaml'], {'ensure' => 'present'})
-  
   include augeas
-
-  # for creating python package rpms
-  #! package { ['rpm-build',  'rubygems', 'ruby-devel'] : }
-  # exec: fpm --python-bin python3 -s python -t rpm setup.py
 
   package { ['xinetd', 'postgresql-devel'] : }
   yumrepo { 'ius':
@@ -57,14 +42,12 @@ class tada::install (
   -> Package<| provider == 'yum' |>
 
 
-  # These install tada,dataq,dart from source in /opt/tada,data-queue,dart
+  # These install tada,dataq from source in /opt/tada,data-queue
   exec { 'install dataq':
     cwd     => '/opt/data-queue',
     command => "/bin/bash -c  /opt/data-queue/scripts/dataq-valley-install.sh",
-    #creates => '/opt/tada/venv/bin/dqsvcpop',
     refreshonly  => true,
     logoutput    => true,
-    #user    => 'tada',
     notify  => [Service['watchpushd'], Service['dqd'], ],
     subscribe => [
       Vcsrepo['/opt/data-queue'], 
@@ -77,7 +60,6 @@ class tada::install (
     command      => "/bin/bash -c /opt/tada/scripts/tada-valley-install.sh",
     refreshonly  => true,
     logoutput    => true,
-    #!user         => 'tada',
     notify       => [Service['watchpushd'], Service['dqd'], ],
     subscribe    => [
                      Vcsrepo['/opt/tada'], 
@@ -85,18 +67,7 @@ class tada::install (
                      File['/etc/tada/hiera.yaml'],
                      Python::Requirements['/opt/tada/requirements.txt'],
                      ],
-  } #! ->
-  #!exec { 'install dart':
-  #!  cwd     => '/opt/dart',
-  #!  command      => "/bin/bash -c /opt/dart/scripts/dart-valley-install.sh",
-  #!  creates => '/opt/tada/venv/bin/delete_archived_fits',
-  #!  #~user    => 'tada',
-  #!  subscribe => [
-  #!    Vcsrepo['/opt/dart'], 
-  #!    File['/opt/tada/venv'],
-  #!    Python::Requirements['/opt/dart/requirements.txt'],
-  #!  ],
-  #!}
+  }
 
   class { 'python' :
     version    => 'python35u',
@@ -121,12 +92,6 @@ class tada::install (
     group      => 'tada',
     require    => [ User['tada'], ],
     }->
-  #!python::requirements  { '/opt/dart/requirements.txt':
-  #!  virtualenv => '/opt/tada/venv',
-  #!  owner      => 'tada',
-  #!  group      => 'tada',
-  #!  require    => [ User['tada'], Vcsrepo['/opt/dart'] ],
-  #!}->
   python::pip { 'pylint' :
    pkgname    => 'pylint',
    ensure     => 'latest',
@@ -134,31 +99,10 @@ class tada::install (
    owner      => 'tada',
    }
   
-  #! Class['python']
-  #! -> Package['python34u-pip']
-  #! -> File['/usr/bin/pip']
-  #! -> File['/usr/local/bin/python3']
-  #! -> Python::Requirements['/etc/tada/requirements.txt']
-  #! -> Package['dataq', 'tada']
-  #! -> Service['dqd']
-  
   class { 'redis':
     version           => '2.8.19',
     redis_max_memory  => '1gb',
   }
-
-  # DEBUGGING.  REMOVE THIS!!! D
-  # Does not work either
-#!  vcsrepo { '/opt/dmo-hiera' :
-#!    ensure   => latest,
-#!    provider => git,
-#!    source   => 'git@bitbucket.org:noao/dmo-hiera.git',
-#!    revision => 'master',
-#!    owner    => 'tada', # 'tester', # 'tada',
-#!    group    => 'tada',
-#!    require  => User['tada'],
-#!    notify   => Exec['install dart'],
-#!    }
 
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
@@ -175,21 +119,8 @@ class tada::install (
     managehome => true,
     password   => '$1$Pk1b6yel$tPE2h9vxYE248CoGKfhR41',  # tada"Password"
     system     => true,
-    } #! ->
-#!  file { '/home/tada/.ssh':
-#!      ensure  => directory,
-#!      mode    => '0700',
-#!      } ->
-#!  file { '/home/tada/.ssh/id_rsa':
-#!    ensure  => 'present',
-#!    mode    => '0600',
-#!    source  => 'puppet:///modules/dmo-hiera/tada_id_rsa',
-#!    } ->
-#!  file { '/home/tada/.ssh/id_rsa.pub':
-#!    ensure  => 'present',
-#!    mode    => '0644',
-#!    source  => 'puppet:///modules/dmo-hiera/tada_id_rsa.pub',
-#!  }
+    }
+
   user { 'tester' :
     ensure     => 'present',
     comment    => 'For running TADA related tests',
@@ -201,26 +132,13 @@ class tada::install (
   vcsrepo { '/opt/tada' :
     ensure   => latest,
     provider => git,
-    source   => 'https://github.com/pothiers/tada.git',
-    revision => "${tadaversion}",
+    source   => 'https://github.com/pothiers/tadanat.git',
+    revision => "${tadanatversion}",
     owner    => 'tada', # 'tester', # 'tada',
     group    => 'tada',
     require  => User['tada'],
     notify   => Exec['install tada'],
     } ->
-#!  vcsrepo { '/opt/dart' :
-#!    ensure   => latest,
-#!    provider => git,
-#!    #!source   => 'https://pothier@bitbucket.org/noao/dart.git',
-#!    #!source   => 'https://github.com/NOAO/dart.git',
-#!    source   => 'git@github.com:NOAO/dart.git',
-#!    revision => 'master',
-#!    owner    => 'tada', # 'tester', # 'tada',
-#!    group    => 'tada',
-#!    identity => '/home/tada/.ssh/id_rsa',
-#!    require  => User['tada'],
-#!    notify   => Exec['install dart'],
-#!    } ->
   file { '/opt/tada/tests/smoke':
       ensure  => directory,
       mode    => '0774',
@@ -249,26 +167,6 @@ class tada::install (
     refreshonly => true,
   }
 
-  exec { 'create audit DB':
-    command     => '/usr/bin/sqlite3 /var/log/tada/audit.db < /etc/tada/audit-schema.sql;/bin/chmod a+rw /var/log/tada/audit.db',
-    onlyif  => "/usr/bin/test ! -f /var/log/tada/audit.db",
-    subscribe => File['/etc/tada/audit-schema.sql'],
-    } 
-#!    exec { 'make audit.db writable by everyone':
-#!      command  => '/bin/chmod a+rw /var/log/tada/audit.db',
-#!    }
-    
-  file { '/usr/local/share/applications/irods-3.3.1.tgz':
-    ensure => present,
-    replace => false,
-    source => "$irodstgz",
-    notify => Exec['unpack irods'],
-  } 
-  exec { 'unpack irods':
-    command     => '/bin/tar -xf /usr/local/share/applications/irods-3.3.1.tgz',
-    cwd         => '/usr/local/share/applications',
-    refreshonly => true,
-  }
   file { '/usr/local/bin/fitsverify' :
     ensure  => present,
     replace => false,
@@ -285,12 +183,6 @@ class tada::install (
     replace => false,
   }
 
-#!  # Install the public key in authorized_keys
-#!  ssh_authorized_key { 'tada_id_rsa':
-#!    key  => hiera('tadakey'),
-#!    type => 'ssh-rsa',
-#!    user => 'tada',
-#!  }
 }
 
 
