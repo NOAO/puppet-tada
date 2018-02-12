@@ -1,7 +1,7 @@
-class tada (
+class tadanat (
   $rsyncpwd       = hiera('rsyncpwd'),
   ) {
-  include tada::install
-  include tada::config
-  include tada::service
+  include tadanat::install
+  include tadanat::config
+  include tadanat::service
 }

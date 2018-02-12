@@ -1,10 +1,10 @@
 
-class tada::install (
-  $fpacktgz    = hiera('fpacktgz', 'puppet:///modules/tada/fpack-bin-centos-6.6.tgz'),
+class tadanat::install (
+  $fpacktgz    = hiera('fpacktgz', 'puppet:///modules/tadanat/fpack-bin-centos-6.6.tgz'),
   $tadanatversion = hiera('tadanatversion', 'master'),
   $dataqversion = hiera('dataqversion', 'master'),
   ) {
-  notice("Loading tada::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
+  notice("Loading tadanat::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
 
   # Top-level dependency to support full tada re-provision
   # To force re-provision: "rm /opt/tada-release" on BOTH mtn and valley
@@ -15,16 +15,16 @@ class tada::install (
     onlyif => 'test \! -f /opt/tada-release',
     } ->
    file { '/opt/tada-release':
-    ensure  => 'present',
-    replace => false,
-    content => "$stamp
+     ensure  => 'present',
+     replace => false,
+     content => "$stamp
 ",
-    notify  => [File[#'/var/tada', # do NOT change history on reprovision!
-                     '/etc/tada', '/var/log/tada', '/var/run/tada',
-                     '/home/tada/.tada', '/home/tester/.tada', ],
-                Vcsrepo['/opt/tada', '/opt/tada-cli','/opt/data-queue' ]
-                ]
-  }
+     #'/var/tada', # do NOT change history on reprovision!
+     notify  => [File['/etc/tada', '/var/log/tada', '/var/run/tada',
+                      '/home/tada/.tada', '/home/tester/.tada'],
+                 Vcsrepo['/opt/tada', '/opt/tada-cli','/opt/data-queue' ]
+                 ]
+   }
   
   # these are also given by: puppet-sdm
   ensure_resource('package', ['git', 'libyaml'], {'ensure' => 'present'})
@@ -51,7 +51,7 @@ class tada::install (
     notify  => [Service['watchpushd'], Service['dqd'], ],
     subscribe => [
       Vcsrepo['/opt/data-queue'], 
-      File['/opt/tada/venv', '/etc/tada/hiera.yaml'],
+      File['/opt/tada/venv', '/etc/tada/from-hiera.yaml'],
       Python::Requirements['/opt/tada/requirements.txt'],
     ],
   } ->
@@ -64,7 +64,7 @@ class tada::install (
     subscribe    => [
                      Vcsrepo['/opt/tada'], 
                      File['/opt/tada/venv'], 
-                     File['/etc/tada/hiera.yaml'],
+                     File['/etc/tada/from-hiera.yaml'],
                      Python::Requirements['/opt/tada/requirements.txt'],
                      ],
   }
@@ -128,11 +128,11 @@ class tada::install (
     password   => '$1$Pk1b6yel$tPE2h9vxYE248CoGKfhR41',  # tada"Password"
     groups     => ['tada'],
     system     => false,
-  } 
+  }
   vcsrepo { '/opt/tada' :
     ensure   => latest,
     provider => git,
-    source   => 'https://github.com/pothiers/tadanat.git',
+    source   => 'https://github.com/NOAO/tadanat',
     revision => "${tadanatversion}",
     owner    => 'tada', # 'tester', # 'tada',
     group    => 'tada',
@@ -165,17 +165,16 @@ class tada::install (
     command     => '/bin/tar -xf /usr/local/share/applications/fpack.tgz',
     cwd         => '/usr/local/bin',
     refreshonly => true,
-  }
-
+  } 
   file { '/usr/local/bin/fitsverify' :
     ensure  => present,
     replace => false,
-    source  => 'puppet:///modules/tada/fitsverify',
-  }
+    source  => 'puppet:///modules/tadanat/fitsverify',
+  } 
   file { '/usr/local/bin/fitscopy' :
     ensure  => present,
     replace => false,
-    source  => 'puppet:///modules/tada/fitscopy',
+    source  => 'puppet:///modules/tadanat/fitscopy',
   }
   # just so LOGROTATE doesn't complain if it runs before we rsync
   file { '/var/log/rsyncd.log' :

@@ -1,4 +1,4 @@
-class tada::config (
+class tadanat::config (
   $secrets        = '/etc/rsyncd.scr',
   $rsyncdscr      = hiera('rsyncdscr'),
   $rsyncdconf     = hiera('rsyncdconf'),
@@ -25,9 +25,10 @@ class tada::config (
   $valley_host         = hiera('valley_host'),
   $mars_host           = hiera('mars_host'),
   $mars_port           = hiera('mars_port'),
-  $tadanatversion      = hiera('tadanatversion'),
   $dataqversion        = hiera('dataqversion'),
-  $marsversion         = hiera('marsversion'),
+  $mars_host           = hiera('natica_host'),
+  $tadaversion         = hiera('tadanatversion'),
+  $marsversion         = hiera('marsnatversion'),
   ) {
   file { [ '/var/run/tada', '/var/log/tada', '/etc/tada', '/var/tada']:
     ensure => 'directory',
@@ -168,7 +169,7 @@ class tada::config (
 dq_host: ${dq_host}
 dq_port: ${dq_port}
 dq_loglevel: ${dq_loglevel}
-arch_natica: ${natica_host}
+natica_host: ${natica_host}
 valley_host: ${valley_host}
 mars_host: ${mars_host}
 mars_port: ${mars_port}
@@ -207,17 +208,17 @@ marsversion: ${marsversion}
   file { '/etc/tada/requirements.txt':
     ensure => 'present',
     replace => false,
-    source => 'puppet:///modules/tada/requirements.txt',
+    source => 'puppet:///modules/tadanat/requirements.txt',
   }
   file { '/etc/tada/audit-schema.sql':
     ensure => 'present',
     replace => false,
-    source => 'puppet:///modules/tada/audit-schema.sql',
+    source => 'puppet:///modules/tadanat/audit-schema.sql',
   }
   file { '/etc/init.d/dqd':
     ensure => 'present',
     replace => true,
-    source => 'puppet:///modules/tada/dqd',
+    source => 'puppet:///modules/tadanat/dqd',
     owner  => 'tada',
     mode   => '0777',
   }
@@ -232,19 +233,19 @@ dqlevel=${dq_loglevel}
   file {  '/etc/tada/watchpushd.conf':
     ensure  => 'present',
     replace => false,
-    source  => 'puppet:///modules/tada/watchpushd.conf',
+    source  => 'puppet:///modules/tadanat/watchpushd.conf',
   }
   file { '/etc/tada/EXAMPLE_prefix_table.csv':
     ensure => 'present',
     replace => false,
-    source => 'puppet:///modules/tada/prefix_table.csv',
+    source => 'puppet:///modules/tadanat/prefix_table.csv',
     owner  => 'tada',
     mode   => '0777',
   }
   file { '/etc/init.d/watchpushd':
     ensure  => 'present',
     replace => true,
-    source  => 'puppet:///modules/tada/watchpushd',
+    source  => 'puppet:///modules/tadanat/watchpushd',
     owner   => 'tada',
     mode    => '0777',
   }
@@ -316,7 +317,7 @@ dqlevel=${dq_loglevel}
   file { '/etc/logrotate.d/tada':
     ensure  => 'present',
     replace => true,
-    source  => 'puppet:///modules/tada/tada.logrotate',
+    source  => 'puppet:///modules/tadanat/tada.logrotate',
   }
 
   file { '/home/tester/.ssh/':
