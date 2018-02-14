@@ -170,9 +170,10 @@ dq_host: ${dq_host}
 dq_port: ${dq_port}
 dq_loglevel: ${dq_loglevel}
 natica_host: ${natica_host}
+natica_port: ${natica_port}
+natica_timeout: ${natica_timeout}
+mountain_host: ${mountain_host}
 valley_host: ${valley_host}
-mars_host: ${mars_host}
-mars_port: ${mars_port}
 tadaversion: ${tadaversion}
 dataqversion: ${dataqversion}
 marsversion: ${marsversion}
