@@ -22,6 +22,7 @@ class tadanat::config (
   $dq_host             = hiera('dq_host'),
   $dq_port             = hiera('dq_port'),
   $natica_host         = hiera('natica_host'),
+  $natica_port         = hiera('natica_port'),
   $valley_host         = hiera('valley_host'),
   $mars_host           = hiera('mars_host'),
   $mars_port           = hiera('mars_port'),
