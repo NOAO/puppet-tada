@@ -5,6 +5,9 @@ class tadanat::install (
   $dataqversion = hiera('dataqversion', 'master'),
   ) {
   notice("Loading tadanat::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
+  #include git
+
+
 
   # Top-level dependency to support full tada re-provision
   # To force re-provision: "rm /opt/tada-release" on BOTH mtn and valley
@@ -14,21 +17,22 @@ class tadanat::install (
     command => "rm -rf /etc/tada/ /var/log/tada /var/run/tada /home/tada/.tada  /home/tester/.tada",
     onlyif => 'test \! -f /opt/tada-release',
     } ->
-   file { '/opt/tada-release':
-     ensure  => 'present',
-     replace => false,
-     content => "$stamp
-",
-     #'/var/tada', # do NOT change history on reprovision!
-     notify  => [File['/etc/tada', '/var/log/tada', '/var/run/tada',
-                      '/home/tada/.tada', '/home/tester/.tada'],
-                 Vcsrepo['/opt/tada', '/opt/tada-cli','/opt/data-queue' ]
-                 ]
-   }
+    file { '/opt/tada-release':
+      ensure  => 'present',
+      replace => false,
+      content => "$stamp
+      ",
+      #'/var/tada', # do NOT change history on reprovision!
+      notify  => [File['/etc/tada', '/var/log/tada', '/var/run/tada',
+                       '/home/tada/.tada', '/home/tester/.tada'],
+                  Vcsrepo['/opt/tada', '/opt/tada-cli','/opt/data-queue' ]
+                  ]
+    }
   
-  # these are also given by: puppet-sdm
-  ensure_resource('package', ['git', 'libyaml'], {'ensure' => 'present'})
-  include augeas
+    # these are also given by: puppet-sdm
+    ensure_resource('package', ['git', 'libyaml'], {'ensure' => 'present'})
+    #!ensure_resource('package', ['libyaml'], {'ensure' => 'present'})
+    include augeas
 
   package { ['xinetd', 'postgresql-devel'] : }
   yumrepo { 'ius':
@@ -107,7 +111,7 @@ class tadanat::install (
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
     provider => git,
-    source   => 'https://github.com/NOAO/tada-cli.git',
+    source   => 'git@github.com:NOAO/tada-cli.git',
     revision => 'master',
   }
   group { 'tada':
@@ -132,7 +136,7 @@ class tadanat::install (
   vcsrepo { '/opt/tada' :
     ensure   => latest,
     provider => git,
-    source   => 'https://github.com/NOAO/tadanat',
+    source   => 'git@github.com:NOAO/tadanat',
     revision => "${tadanatversion}",
     owner    => 'tada', # 'tester', # 'tada',
     group    => 'tada',
@@ -147,7 +151,7 @@ class tadanat::install (
   vcsrepo { '/opt/data-queue' :
     ensure   => latest,
     provider => git,
-    source   => 'https://github.com/pothiers/data-queue.git',
+    source   => 'git@github.com:pothiers/data-queue.git',
     revision => "${dataqversion}",
     owner    => 'tada', # 'tester', #'tada',
     group    => 'tada',
