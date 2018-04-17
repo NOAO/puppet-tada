@@ -111,7 +111,8 @@ class tadanat::install (
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
     provider => git,
-    source   => 'git@github.com:NOAO/tada-cli.git',
+    #!source   => 'git@github.com:NOAO/tada-cli.git',
+    source   => 'https://github.com/NOAO/tada-cli.git',
     revision => 'master',
   }
   group { 'tada':
@@ -136,7 +137,8 @@ class tadanat::install (
   vcsrepo { '/opt/tada' :
     ensure   => latest,
     provider => git,
-    source   => 'git@github.com:NOAO/tadanat',
+    #!source   => 'git@github.com:NOAO/tadanat',
+    source   => 'https://github.com/NOAO/tadanat.git',
     revision => "${tadanatversion}",
     owner    => 'tada', # 'tester', # 'tada',
     group    => 'tada',
@@ -151,7 +153,8 @@ class tadanat::install (
   vcsrepo { '/opt/data-queue' :
     ensure   => latest,
     provider => git,
-    source   => 'git@github.com:pothiers/data-queue.git',
+    #!source   => 'git@github.com:pothiers/data-queue.git',
+    source   => 'https://github.com/NOAO/data-queue.git',
     revision => "${dataqversion}",
     owner    => 'tada', # 'tester', #'tada',
     group    => 'tada',

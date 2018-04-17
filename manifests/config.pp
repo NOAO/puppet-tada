@@ -8,9 +8,9 @@ class tadanat::config (
   $watch_log_conf = hiera('watch_logging_conf'),
   $tada_conf      = hiera('tada_conf'),
   $smoke_conf     = hiera('smoke_conf'),
-  $host_type      = hiera('tada_host_type'),
+  $host_type      = hiera('tada_host_type', 'MOUNTAIN'),
   $dq_loglevel    = hiera('dq_loglevel'),
-  $qname          = hiera('qname'),
+  $qname          = hiera('qname', 'transfer'),
 
   $udp_recv_channel   = hiera('udp_recv_channel'),
   $udp_send_channel   = hiera('udp_send_channel'),
