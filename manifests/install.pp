@@ -154,7 +154,7 @@ class tadanat::install (
     ensure   => latest,
     provider => git,
     #!source   => 'git@github.com:pothiers/data-queue.git',
-    source   => 'https://github.com/NOAO/data-queue.git',
+    source   => 'https://github.com/pothiers/data-queue.git',
     revision => "${dataqversion}",
     owner    => 'tada', # 'tester', #'tada',
     group    => 'tada',
