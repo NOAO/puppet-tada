@@ -74,7 +74,8 @@ class tadanat::install (
   }
 
   class { 'python' :
-    version    => 'python36u',
+    version    => 'python35u',
+    #version    => 'python36u',
     pip        => 'present',
     dev        => 'present',
     virtualenv => 'absent', # 'present',
@@ -82,12 +83,12 @@ class tadanat::install (
     } ->
   file { '/usr/bin/python3':
     ensure => 'link',
-    #!target => '/usr/bin/python3.5',
-    target => '/usr/bin/python3.6',
+    target => '/usr/bin/python3.5',
+    #!target => '/usr/bin/python3.6',
     } ->
   python::pyvenv  { '/opt/tada/venv':
-    #!version  => '3.5',
-    version  => '3.6',
+    version  => '3.5',
+    #!version  => '3.6',
     owner    => 'tada',
     group    => 'tada',
     require  => [ User['tada'], ],
