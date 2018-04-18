@@ -74,7 +74,7 @@ class tadanat::install (
   }
 
   class { 'python' :
-    version    => 'python35u',
+    version    => 'python36u',
     pip        => 'present',
     dev        => 'present',
     virtualenv => 'absent', # 'present',
@@ -82,10 +82,12 @@ class tadanat::install (
     } ->
   file { '/usr/bin/python3':
     ensure => 'link',
-    target => '/usr/bin/python3.5',
+    #!target => '/usr/bin/python3.5',
+    target => '/usr/bin/python3.6',
     } ->
   python::pyvenv  { '/opt/tada/venv':
-    version  => '3.5',
+    #!version  => '3.5',
+    version  => '3.6',
     owner    => 'tada',
     group    => 'tada',
     require  => [ User['tada'], ],
@@ -103,10 +105,12 @@ class tadanat::install (
    owner      => 'tada',
    }
   
-  class { 'redis':
-    version           => '2.8.19',
-    redis_max_memory  => '1gb',
-  }
+
+#!  class { 'redis':
+#!    version           => '2.8.19',
+#!    redis_max_memory  => '1gb',
+#!  }
+  include ::redis
 
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
