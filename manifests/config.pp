@@ -311,11 +311,11 @@ dqlevel=${dq_loglevel}
   exec { 'rsyncd':
     command   => '/bin/systemctl start rsyncd',
     subscribe => File['/etc/rsyncd.conf'],
-    unless    => '/sbin/systemctl status rsyncd.service | grep "Active: active"',
+    unless    => '/bin/systemctl status rsyncd.service | grep "Active: active"',
   }
   exec { 'bootrsyncd':
     command   => '/bin/systemctl enable rsyncd',
-    unless    => '/sbin/systemctl status rsyncd.service | grep "Active: active"',
+    unless    => '/bin/systemctl status rsyncd.service | grep "Active: active"',
   }
   firewall { '000 allow rsync':
     chain   => 'INPUT',
