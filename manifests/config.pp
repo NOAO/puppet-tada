@@ -302,11 +302,20 @@ dqlevel=${dq_loglevel}
     enable  => true,
     require => Package['xinetd'],
     }
+  #!exec { 'rsyncd':
+  #!  command   => '/sbin/chkconfig rsync on',
+  #!  require   => [Service['xinetd'],],
+  #!  subscribe => File['/etc/rsyncd.conf'],
+  #!  onlyif    => '/sbin/chkconfig --list --type xinetd rsync | grep off',
+  #!}
   exec { 'rsyncd':
-    command   => '/sbin/chkconfig rsync on',
-    require   => [Service['xinetd'],],
+    command   => '/bin/systemctl start rsyncd',
     subscribe => File['/etc/rsyncd.conf'],
-    onlyif    => '/sbin/chkconfig --list --type xinetd rsync | grep off',
+    unless    => 'systemctl status rsyncd.service | grep "Active: active"',
+  }
+  exec { 'bootrsyncd':
+    command   => '/bin/systemctl enable rsyncd',
+    unless    => 'systemctl status rsyncd.service | grep "Active: active"',
   }
   firewall { '000 allow rsync':
     chain   => 'INPUT',
