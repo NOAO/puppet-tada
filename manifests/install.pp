@@ -169,8 +169,8 @@ class tadanat::install (
   vcsrepo { '/opt/data-queue' :
     ensure   => latest,
     provider => git,
-    #!source   => 'git@github.com:pothiers/data-queue.git',
-    source   => 'https://github.com/pothiers/data-queue.git',
+    #!source   => 'git@github.com:NOAO/data-queue.git',
+    source   => 'https://github.com/NOAO/data-queue.git',
     revision => "${dataqversion}",
     owner    => 'tada', # 'tester', #'tada',
     group    => 'tada',
