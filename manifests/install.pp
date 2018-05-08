@@ -124,9 +124,6 @@ class tadanat::install (
   #           OR
   #    yum update curl nss nss-util nspr
 
-  package { ['curl', 'nss'] :
-    ensure => 'latest',
-    } ->
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
     provider => git,
