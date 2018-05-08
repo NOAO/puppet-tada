@@ -182,6 +182,13 @@ marsversion: ${marsversion}
     group   => 'root',
     mode    => '0774',
   }
+  file {  '/etc/tada/dq-config.json':
+    ensure  => 'present',
+    replace => true,
+    content => "Replace with: /sandbox/dq-config.json",
+    group   => 'root',
+    mode    => '0774',
+  }
 
   file { '/etc/tada/pop.yaml':
     ensure  => 'present',

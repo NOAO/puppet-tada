@@ -114,6 +114,19 @@ class tadanat::install (
 #!  }
   include ::redis
 
+  # Some old/vulnerable NSS is used for SSL within cURL library when you
+  # go to some url, so it's rejected. So within this machine you have
+  # chance to fail to run cURL related commands such as pycurl.
+  #
+  # It seems the NSS is bundle with CentOS 7.0 VM, so you can update NSS
+  # libraries as following:
+  #    yum update curl nss
+  #           OR
+  #    yum update curl nss nss-util nspr
+
+  package { ['curl', 'nss'] :
+    ensure => 'latest',
+    } ->
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
     provider => git,

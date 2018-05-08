@@ -14,11 +14,11 @@ class# Service resources, and anything else related to the running state of
     # duplicate should never happen UNLESS done manually.
   service { 'dqd':
     ensure   => 'running',
-    subscribe => [File ['/etc/tada/dqd.conf',
-                        '/etc/init.d/dqd',
-                        '/etc/tada/from-hiera.yaml',
-                        '/etc/tada/tada.conf'
-                        ],
+    subscribe => [File['/etc/tada/dqd.conf',
+                       '/etc/init.d/dqd',
+                       '/etc/tada/from-hiera.yaml',
+                       '/etc/tada/tada.conf'
+                       ],
                   Class['redis'],
                   Python::Requirements[ '/opt/tada/requirements.txt'],
                   #! Package['python-dataq', 'python-tada'],
@@ -32,9 +32,9 @@ class# Service resources, and anything else related to the running state of
   # WATCH only needed for MOUNTAIN (so far)
   service { 'watchpushd':
     ensure    => 'running',
-    subscribe => [File ['/etc/tada/watchpushd.conf',
-                        '/etc/init.d/watchpushd'
-                        ],
+    subscribe => [File['/etc/tada/watchpushd.conf',
+                       '/etc/init.d/watchpushd'
+                       ],
                   Python::Requirements[ '/opt/tada/requirements.txt'],
                   #! Package['python-dataq', 'python-tada'],
                   Exec['install tada'],
