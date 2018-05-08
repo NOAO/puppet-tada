@@ -184,7 +184,7 @@ marsversion: ${marsversion}
   }
   file {  '/etc/tada/dq-config.json':
     ensure  => 'present',
-    replace => true,
+    replace => false,
     content => "Replace with: /sandbox/dq-config.json",
     group   => 'root',
     mode    => '0774',
