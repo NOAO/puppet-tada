@@ -112,7 +112,10 @@ class tadanat::install (
 #!    version           => '2.8.19',
 #!    redis_max_memory  => '1gb',
 #!  }
-  include ::redis
+    #!include ::redis
+    class { '::redis':
+#!      bind => '0.0.0.0',
+    }
 
   # Some old/vulnerable NSS is used for SSL within cURL library when you
   # go to some url, so it's rejected. So within this machine you have

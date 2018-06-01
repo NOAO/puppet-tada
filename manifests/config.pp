@@ -258,14 +258,14 @@ dqlevel=${dq_loglevel}
     owner   => 'tada',
     mode    => '0777',
   }
-  # Not sure if firewall mods needed for dqsvcpop???
-  firewall { '000 allow dqsvcpop':
-    chain   => 'INPUT',
-    state   => ['NEW'],
-    dport   => '6379',
-    proto   => 'tcp',
-    action  => 'accept',
-  }
+#!  # Not sure if firewall mods needed for dqsvcpop???
+#!  firewall { '000 allow dqsvcpop':
+#!    chain   => 'INPUT',
+#!    state   => ['NEW'],
+#!    dport   => '6379',
+#!    proto   => 'tcp',
+#!    action  => 'accept',
+#!  }
 
   file_line { 'config_inotify_instances':
     ensure => present,
@@ -297,7 +297,7 @@ dqlevel=${dq_loglevel}
     owner   => 'root',
     mode    => '0400',
   }
-  file {  '/etc/rsyncd.conf':
+ file {  '/etc/rsyncd.conf':
     ensure  => 'present',
     replace => true,
     source  => "${rsyncdconf}",
@@ -324,13 +324,14 @@ dqlevel=${dq_loglevel}
     command   => '/bin/systemctl enable rsyncd',
     unless    => '/bin/systemctl status rsyncd.service | grep "Active: active"',
   }
-  firewall { '000 allow rsync':
-    chain   => 'INPUT',
-    state   => ['NEW'],
-    dport   => '873',
-    proto   => 'tcp',
-    action  => 'accept',
-  }
+#!  class { 'firewall': } ->
+#!  firewall { '000 allow rsync':
+#!    chain   => 'INPUT',
+#!    state   => ['NEW'],
+#!    dport   => '873',
+#!    proto   => 'tcp',
+#!    action  => 'accept',
+#!  }
 
   file { '/etc/logrotate.d/tada':
     ensure  => 'present',
