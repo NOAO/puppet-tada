@@ -108,7 +108,7 @@ class tadanat::install (
    owner      => 'tada',
    }
   
-
+ 
 #!  class { 'redis':
 #!    version           => '2.8.19',
 #!    redis_max_memory  => '1gb',
@@ -128,7 +128,9 @@ class tadanat::install (
   #           OR
   #    yum update curl nss nss-util nspr
 
-  package{ ['nss', 'curl', 'libcurl'] : } ->
+  package{ ['nss', 'curl', 'libcurl'] :
+      ensure => 'latest',
+    } ->
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
     provider => git,
