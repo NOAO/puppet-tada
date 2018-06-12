@@ -2,10 +2,11 @@ class tadanat::config (
   $secrets        = '/etc/rsyncd.scr',
   $rsyncdscr      = hiera('rsyncdscr'),
   $rsyncdconf     = hiera('rsyncdconf'),
-  $rsyncpwd       = hiera('rsyncpwd'),
+  $rsyncpwd       = hiera('rsyncpwd',  'puppet:///modules/dmo-hiera/rsync.pwd'),
   $logging_conf   = hiera('tada_logging_conf'),
   $dqcli_log_conf = hiera('dqcli_logging_conf'),
   $watch_log_conf = hiera('watch_logging_conf'),
+  $dq_conf     = hiera('dq_conf', 'puppet:///modules/dmo-hiera/dq-config.json'),
   $tada_conf      = hiera('tada_conf'),
   $smoke_conf     = hiera('smoke_conf'),
   $host_type      = hiera('tada_host_type', 'MOUNTAIN'),
@@ -185,7 +186,7 @@ marsversion: ${marsversion}
   file {  '/etc/tada/dq-config.json':
     ensure  => 'present',
     replace => false,
-    content => "Replace with: /sandbox/dq-config.json",
+    source  => "${dq_conf}",
     group   => 'root',
     mode    => '0774',
   }

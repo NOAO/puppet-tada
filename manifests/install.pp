@@ -5,6 +5,7 @@ class tadanat::install (
   $dataqversion = hiera('dataqversion', 'master'),
   ) {
   notice("Loading tadanat::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
+  notify{"tadanat::install.pp; rsyncpwd=${rsyncpwd}":}
   #include git
 
 
@@ -127,6 +128,7 @@ class tadanat::install (
   #           OR
   #    yum update curl nss nss-util nspr
 
+  package{ ['nss', 'curl', 'libcurl'] : } ->
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
     provider => git,
