@@ -325,6 +325,13 @@ dqlevel=${dq_loglevel}
     command   => '/bin/systemctl enable rsyncd',
     unless    => '/bin/systemctl status rsyncd.service | grep "Active: active"',
   }
+  #!class { 'firewall': } ->
+  #!firewall { '999 disable firewall':
+  #!  ensure => 'stopped',
+  #!}
+  #!class { selinux:
+  #!  mode => 'permissive',
+  #!}
 #!  class { 'firewall': } ->
 #!  firewall { '000 allow rsync':
 #!    chain   => 'INPUT',
@@ -332,7 +339,7 @@ dqlevel=${dq_loglevel}
 #!    dport   => '873',
 #!    proto   => 'tcp',
 #!    action  => 'accept',
-#!  }
+  #!  }
 
   file { '/etc/logrotate.d/tada':
     ensure  => 'present',

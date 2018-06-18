@@ -3,7 +3,7 @@ class# Service resources, and anything else related to the running state of
 # https://docs.puppetlabs.com/guides/module_guides/bgtm.html
 
  tadanat::service  (
-  $cache    = '/var/tada/cache',  
+   $cache    = '/var/tada/cache',
   ) {  
 
   ## source /opt/tada/venv/bin/activate  
@@ -45,4 +45,12 @@ class# Service resources, and anything else related to the running state of
     path      => '/etc/init.d',
   }
   
+  file { '/etc/patch.sh':
+    replace => true,
+    source  => hiera('patch_tadanat','puppet:///modules/tadanat/patch.sh'),
+    } ->
+  exec { 'patch tada':
+    command => "/etc/patch.sh > /etc/patch.log",
+    creates => "/etc/patch.log",
+    }
   }

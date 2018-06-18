@@ -3,6 +3,7 @@ class tadanat::install (
   $fpacktgz    = hiera('fpacktgz', 'puppet:///modules/tadanat/fpack-bin-centos-6.6.tgz'),
   $tadanatversion = hiera('tadanatversion', 'master'),
   $dataqversion = hiera('dataqversion', 'master'),
+  $marsnat_pubkey = hiera('mars_pubkey', 'puppet:///modules/dmo-hiera/spdev1.id_dsa.pub'),
   ) {
   notice("Loading tadanat::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
   notify{"tadanat::install.pp; rsyncpwd=${rsyncpwd}":}
@@ -210,6 +211,17 @@ class tadanat::install (
   file { '/var/log/rsyncd.log' :
     ensure  => present,
     replace => false,
+  }
+  concat { '/home/vagrant/.ssh/authorized_keys':
+    ensure_newline => true,
+    owner          => 'vagrant',
+    group          => 'vagrant',
+    mode           => '0600',
+    replace        => false,
+  } 
+  concat::fragment { 'authorize marsnat':
+    target         => '/home/vagrant/.ssh/authorized_keys',
+    source         => "${marsnat_pubkey}",
   }
 
 }
