@@ -214,17 +214,17 @@ class tadanat::install (
     ensure  => present,
     replace => false,
   }
-  concat { '/home/vagrant/.ssh/authorized_keys':
-    ensure_newline => true,
-    owner          => 'vagrant',
-    group          => 'vagrant',
-    mode           => '0600',
-    replace        => false,
-  } 
-  concat::fragment { 'authorize marsnat':
-    target         => '/home/vagrant/.ssh/authorized_keys',
-    source         => "${marsnat_pubkey}",
-  }
+  #!concat { '/home/vagrant/.ssh/authorized_keys':
+  #!  ensure_newline => true,
+  #!  owner          => 'vagrant',
+  #!  group          => 'vagrant',
+  #!  mode           => '0600',
+  #!  replace        => false,
+  #!} 
+  #!concat::fragment { 'authorize marsnat':
+  #!  target         => '/home/vagrant/.ssh/authorized_keys',
+  #!  source         => "${marsnat_pubkey}",
+  #!}
 
 }
 
