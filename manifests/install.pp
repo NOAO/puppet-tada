@@ -131,7 +131,9 @@ class tadanat::install (
 
   # CONFLICTS with puppet-sdm.  Instead:
   #   sudo yum -y update nss curl libcurl
-  #!package{ ['nss', 'curl', 'libcurl'] :
+  # Following will fail because NAME is used for uniqueness
+  #!package { 'update curl':
+  #!    name   => ['nss', 'curl', 'libcurl'],
   #!    ensure => 'latest',
   #!  } ->
   vcsrepo { '/opt/tada-cli' :
