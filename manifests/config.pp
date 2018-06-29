@@ -25,10 +25,7 @@ class tadanat::config (
   $natica_host         = hiera('natica_host'),
   $natica_port         = hiera('natica_port'),
   $valley_host         = hiera('valley_host'),
-  $mars_host           = hiera('mars_host'),
-  $mars_port           = hiera('mars_port'),
   $dataqversion        = hiera('dataqversion'),
-  $mars_host           = hiera('natica_host'),
   $tadaversion         = hiera('tadanatversion'),
   $marsversion         = hiera('marsnatversion'),
   ) {
