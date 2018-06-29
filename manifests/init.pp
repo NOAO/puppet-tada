@@ -1,5 +1,5 @@
 class tadanat (
-  $rsyncpwd       = hiera('rsyncpwd'),
+  # $rsyncpwd       = hiera('rsyncpwd'),
   ) {
   include tadanat::install
   include tadanat::config

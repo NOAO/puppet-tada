@@ -6,7 +6,7 @@ class tadanat::install (
   $marsnat_pubkey = hiera('mars_pubkey', 'puppet:///modules/dmo-hiera/spdev1.id_dsa.pub'),
   ) {
   notice("Loading tadanat::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
-  notify{"tadanat::install.pp; rsyncpwd=${rsyncpwd}":}
+  notify{"tadanat::install.pp":}
   #include git
 
 
