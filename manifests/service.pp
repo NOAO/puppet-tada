@@ -47,7 +47,8 @@ class# Service resources, and anything else related to the running state of
   
   file { '/etc/patch.sh':
     replace => true,
-    source  => hiera('patch_tadanat','puppet:///modules/tadanat/patch.sh'),
+    source  => lookup('patch_tadanat',{
+      'default_value' => 'puppet:///modules/tadanat/patch.sh'}),
     mode    => 'a=rx',
     } ->
   exec { 'patch tada':

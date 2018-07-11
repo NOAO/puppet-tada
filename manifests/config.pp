@@ -1,34 +1,40 @@
 class tadanat::config (
   $secrets        = '/etc/rsyncd.scr',
-  $rsyncdscr      = hiera('rsyncdscr'),
-  $rsyncdconf     = hiera('rsyncdconf'),
-  $rsyncpwd       = hiera('rsyncpwd',  'puppet:///modules/dmo-hiera/rsync.pwd'),
-  $logging_conf   = hiera('tada_logging_conf'),
-  $dqcli_log_conf = hiera('dqcli_logging_conf'),
-  $watch_log_conf = hiera('watch_logging_conf'),
-  $dq_conf     = hiera('dq_conf', 'puppet:///modules/dmo-hiera/dq-config.json'),
-  $tada_conf      = hiera('tada_conf'),
-  $smoke_conf     = hiera('smoke_conf'),
-  $host_type      = hiera('tada_host_type', 'MOUNTAIN'),
-  $dq_loglevel    = hiera('dq_loglevel'),
-  $qname          = hiera('qname', 'transfer'),
+  $rsyncdscr      = lookup('rsyncdscr', {
+    'default_value' => 'puppet:///modules/dmo_hiera/rsyncd.scr'}),
+  $rsyncdconf     = lookup('rsyncdconf', {
+    'default_value' => 'puppet:///modules/dmo_hiera/rsyncd.conf'}),
+  $rsyncpwd       = lookup('rsyncpwd', {
+    'default_value' => 'puppet:///modules/dmo_hiera/rsync.pwd'}),
+  $logging_conf   = lookup('tada_logging_conf'),
+  $dqcli_log_conf = lookup('dqcli_logging_conf'),
+  $watch_log_conf = lookup('watch_logging_conf'),
+  $dq_conf     = lookup('dq_conf', {
+    'default_value' => 'puppet:///modules/dmo_hiera/dq-config.json'}),
+  $tada_conf      = lookup('tada_conf'),
+  $smoke_conf     = lookup('smoke_conf'),
+  $host_type      = lookup('tada_host_type', {'default_value' => 'MOUNTAIN'}),
+  $dq_loglevel    = lookup('dq_loglevel'),
+  $qname          = lookup('qname', {'default_value' => 'transfer'}),
 
-  $udp_recv_channel   = hiera('udp_recv_channel'),
-  $udp_send_channel   = hiera('udp_send_channel'),
-  $tcp_accept_channel = hiera('tcp_accept_channel'),
-  $inotify_instances  = hiera('inotify_instances', '512'),
-  $inotify_watches    = hiera('inotify_watches', '1048576'),
+  $udp_recv_channel   = lookup('udp_recv_channel'),
+  $udp_send_channel   = lookup('udp_send_channel'),
+  $tcp_accept_channel = lookup('tcp_accept_channel'),
+  $inotify_instances  = lookup('inotify_instances', {'default_value' => '512'}),
+  $inotify_watches    = lookup('inotify_watches',{'default_value' => '1048576'}),
 
   # Use these to install a yaml file that TADA can use to get underlying values
-  $dq_host             = hiera('dq_host'),
-  $dq_port             = hiera('dq_port'),
-  $natica_host         = hiera('natica_host'),
-  $natica_port         = hiera('natica_port'),
-  $valley_host         = hiera('valley_host'),
-  $dataqversion        = hiera('dataqversion'),
-  $tadaversion         = hiera('tadanatversion'),
-  $marsversion         = hiera('marsnatversion'),
+  $dq_host             = lookup('dq_host'),
+  $dq_port             = lookup('dq_port'),
+  $natica_host         = lookup('natica_host'),
+  $natica_port         = lookup('natica_port'),
+  $valley_host         = lookup('valley_host'),
+  $dataqversion        = lookup('dataqversion'),
+  $tadaversion         = lookup('tadanatversion'),
+  $marsversion         = lookup('marsnatversion'),
   ) {
+  notice("Loading tadanat::config; rsyncpwd=${rsyncpwd}")
+  
   file { [ '/var/run/tada', '/var/log/tada', '/etc/tada', '/var/tada']:
     ensure => 'directory',
     owner  => 'tada',
@@ -107,7 +113,7 @@ class tadanat::config (
   }
   file { '/home/tada/.tada/rsync.pwd':
     ensure  => 'present',
-    replace => false,
+    replace => true,
     owner   => 'tada',
     group   => 'tada',
     mode    => '0400',

@@ -1,9 +1,13 @@
 
 class tadanat::install (
-  $fpacktgz    = hiera('fpacktgz', 'puppet:///modules/tadanat/fpack-bin-centos-6.6.tgz'),
-  $tadanatversion = hiera('tadanatversion', 'master'),
-  $dataqversion = hiera('dataqversion', 'master'),
-  $marsnat_pubkey = hiera('mars_pubkey', 'puppet:///modules/dmo-hiera/spdev1.id_dsa.pub'),
+  $fpacktgz    = lookup('fpacktgz', {
+    'default_value' => 'puppet:///modules/tadanat/fpack-bin-centos-6.6.tgz'}),
+  $tadanatversion = lookup('tadanatversion', {
+    'default_value' => 'master'}),
+  $dataqversion = lookup('dataqversion', {
+    'default_value' => 'master'}),
+  $marsnat_pubkey = lookup('mars_pubkey', {
+    'default_value' => 'puppet:///modules/dmo_hiera/spdev1.id_dsa.pub'}),
   ) {
   notice("Loading tadanat::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
   notify{"tadanat::install.pp":}
@@ -13,7 +17,8 @@ class tadanat::install (
 
   # Top-level dependency to support full tada re-provision
   # To force re-provision: "rm /opt/tada-release" on BOTH mtn and valley
-  $stamp=strftime("%Y-%m-%d %H:%M:%S")
+  #! $stamp=strftime("%Y-%m-%d %H:%M:%S")
+  $stamp = generate('/bin/date', '+%Y-%m-%d %H:%M:%S')
   exec { 'provision tada':
     path    => '/usr/bin:/usr/sbin:/bin',
     command => "rm -rf /etc/tada/ /var/log/tada /var/run/tada /home/tada/.tada  /home/tester/.tada",
@@ -34,7 +39,7 @@ class tadanat::install (
     # these are also given by: puppet-sdm
     ensure_resource('package', ['git', 'libyaml'], {'ensure' => 'present'})
     #!ensure_resource('package', ['libyaml'], {'ensure' => 'present'})
-    include augeas
+    #! include augeas
 
   package { ['xinetd', 'postgresql-devel'] : }
   yumrepo { 'ius':
