@@ -1,10 +1,13 @@
 
+
 class tadanat::install (
   $fpacktgz    = lookup('fpacktgz', {
     'default_value' => 'puppet:///modules/tadanat/fpack-bin-centos-6.6.tgz'}),
   $tadanatversion = lookup('tadanatversion', {
     'default_value' => 'master'}),
   $dataqversion = lookup('dataqversion', {
+    'default_value' => 'master'}),
+  $hdrfunclibversion = lookup('hdrfunclibversion', {
     'default_value' => 'master'}),
   $marsnat_pubkey = lookup('mars_pubkey', {
     'default_value' => 'puppet:///modules/dmo_hiera/spdev1.id_dsa.pub'}),
@@ -81,21 +84,23 @@ class tadanat::install (
                      ],
   }
 
+  package{ ['python36u-pip', 'python34-pylint'] : } ->
+    # Will try to install wrong (python3-pip) version of pip under non-SCL.
+    # We WANT:
+    #   sudo yum -y install python36u-pip
   class { 'python' :
-    #version    => 'python35u',
     version    => 'python36u',
-    pip        => 'present',
-    dev        => 'present',
-    virtualenv => 'absent', # 'present',
+    ensure     => 'latest',
+    pip        => 'absent', # 'latest' will try to install "python3-pip"
+    dev        => 'latest',
     gunicorn   => 'absent',
     } ->
-  file { '/usr/bin/python3':
-    ensure => 'link',
-    #target => '/usr/bin/python3.5',
-    target => '/usr/bin/python3.6',
-    } ->
+#!  file { '/usr/bin/python3':
+#!    ensure => 'link',
+#!    #target => '/usr/bin/python3.5',
+#!    target => '/usr/bin/python3.6',
+#!    } ->
   python::pyvenv  { '/opt/tada/venv':
-    #version  => '3.5',
     version  => '3.6',
     owner    => 'tada',
     group    => 'tada',
@@ -103,16 +108,19 @@ class tadanat::install (
   } ->
   python::requirements  { '/opt/tada/requirements.txt':
     virtualenv => '/opt/tada/venv',
+    pip_provider => 'pip3',
     owner      => 'tada',
     group      => 'tada',
+    forceupdate  => true,
     require    => [ User['tada'], ],
-    }->
-  python::pip { 'pylint' :
-   pkgname    => 'pylint',
-   ensure     => 'latest',
-   virtualenv => '/opt/tada/venv',   
-   owner      => 'tada',
-   }
+  }
+  #!->
+  #!python::pip { 'pylint' :
+  #! pkgname    => 'pylint',
+  #! ensure     => 'latest',
+  #! virtualenv => '/opt/tada/venv',   
+  #! owner      => 'tada',
+  #! }
   
  
 #!  class { 'redis':
@@ -120,8 +128,13 @@ class tadanat::install (
 #!    redis_max_memory  => '1gb',
 #!  }
     #!include ::redis
+    package{ ['epel-release', 'jemalloc'] : } ->
     class { '::redis':
-#!      bind => '0.0.0.0',
+      protected_mode => 'no',
+      #! bind => undef,  # Will cause DEFAULT (127.0.0.1) value to be used
+      #! bind => '172.16.1.21', # @@@ mtnnat
+      bind => '0.0.0.0', # @@@ Listen to ALL interfaces
+      #! bind => '127.0.0.1 172.16.1.21', # listen to Local and mtnnat.vagrant
     }
 
   # Some old/vulnerable NSS is used for SSL within cURL library when you
@@ -143,6 +156,7 @@ class tadanat::install (
   #!  } ->
   vcsrepo { '/opt/tada-cli' :
     ensure   => latest,
+    #!ensure   => bare,
     provider => git,
     #!source   => 'git@github.com:NOAO/tada-cli.git',
     source   => 'https://github.com/NOAO/tada-cli.git',
@@ -169,11 +183,23 @@ class tadanat::install (
   }
   vcsrepo { '/opt/tada' :
     ensure   => latest,
+    #!ensure   => bare,
     provider => git,
     #!source   => 'git@github.com:NOAO/tadanat',
     source   => 'https://github.com/NOAO/tadanat.git',
     revision => "${tadanatversion}",
     owner    => 'tada', # 'tester', # 'tada',
+    group    => 'tada',
+    require  => User['tada'],
+    notify   => Exec['install tada'],
+    } ->
+  vcsrepo { '/opt/tada/hdrfunclib' :
+    ensure   => latest,
+    #!ensure   => bare,
+    provider => git,
+    source   => 'https://github.com/NOAO/hdrfunclib.git',
+    revision => "${hdrfunclibversion}", 
+    owner    => 'tada', 
     group    => 'tada',
     require  => User['tada'],
     notify   => Exec['install tada'],
@@ -185,6 +211,7 @@ class tadanat::install (
       }
   vcsrepo { '/opt/data-queue' :
     ensure   => latest,
+    #!ensure   => bare,
     provider => git,
     #!source   => 'git@github.com:NOAO/data-queue.git',
     source   => 'https://github.com/NOAO/data-queue.git',
@@ -221,6 +248,7 @@ class tadanat::install (
     ensure  => present,
     replace => false,
   }
+
   #!concat { '/home/vagrant/.ssh/authorized_keys':
   #!  ensure_newline => true,
   #!  owner          => 'vagrant',

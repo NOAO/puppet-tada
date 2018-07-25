@@ -1,8 +1,8 @@
-class# Service resources, and anything else related to the running state of
+# Service resources, and anything else related to the running state of
 # the software.
 # https://docs.puppetlabs.com/guides/module_guides/bgtm.html
 
- tadanat::service  (
+class tadanat::service  (
    $cache    = '/var/tada/cache',
   ) {  
 

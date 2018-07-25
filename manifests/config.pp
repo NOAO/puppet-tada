@@ -28,9 +28,12 @@ class tadanat::config (
   $dq_port             = lookup('dq_port'),
   $natica_host         = lookup('natica_host'),
   $natica_port         = lookup('natica_port'),
+  $natica_timeout      = lookup('natica_timeout'),
+  $test_mtn_host       = lookup('test_mtn_host'),
   $valley_host         = lookup('valley_host'),
   $dataqversion        = lookup('dataqversion'),
   $tadaversion         = lookup('tadanatversion'),
+  $hdrfunclibversion   = lookup('hdrfunclibversion'),
   $marsversion         = lookup('marsnatversion'),
   ) {
   notice("Loading tadanat::config; rsyncpwd=${rsyncpwd}")
@@ -177,7 +180,7 @@ dq_loglevel: ${dq_loglevel}
 natica_host: ${natica_host}
 natica_port: ${natica_port}
 natica_timeout: ${natica_timeout}
-mountain_host: ${mountain_host}
+test_mtn_host: ${test_mtn_host}
 valley_host: ${valley_host}
 tadaversion: ${tadaversion}
 dataqversion: ${dataqversion}
