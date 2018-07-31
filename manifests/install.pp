@@ -84,6 +84,14 @@ class tadanat::install (
                      ],
   }
 
+  package{ ['epel-release', 'jemalloc'] : } ->
+  class { '::redis':
+      protected_mode => 'no',
+      #! bind => undef,  # Will cause DEFAULT (127.0.0.1) value to be used
+      #! bind => '172.16.1.21', # @@@ mtnnat
+      bind => '0.0.0.0', # @@@ Listen to ALL interfaces
+      #! bind => '127.0.0.1 172.16.1.21', # listen to Local and mtnnat.vagrant
+    } ->
   package{ ['python36u-pip', 'python34-pylint'] : } ->
     # Will try to install wrong (python3-pip) version of pip under non-SCL.
     # We WANT:
@@ -123,19 +131,6 @@ class tadanat::install (
   #! }
   
  
-#!  class { 'redis':
-#!    version           => '2.8.19',
-#!    redis_max_memory  => '1gb',
-#!  }
-    #!include ::redis
-    package{ ['epel-release', 'jemalloc'] : } ->
-    class { '::redis':
-      protected_mode => 'no',
-      #! bind => undef,  # Will cause DEFAULT (127.0.0.1) value to be used
-      #! bind => '172.16.1.21', # @@@ mtnnat
-      bind => '0.0.0.0', # @@@ Listen to ALL interfaces
-      #! bind => '127.0.0.1 172.16.1.21', # listen to Local and mtnnat.vagrant
-    }
 
   # Some old/vulnerable NSS is used for SSL within cURL library when you
   # go to some url, so it's rejected. So within this machine you have
@@ -193,7 +188,7 @@ class tadanat::install (
     require  => User['tada'],
     notify   => Exec['install tada'],
     } ->
-  vcsrepo { '/opt/tada/hdrfunclib' :
+  vcsrepo { '/opt/tada/tada/hdrfunclib' :
     ensure   => latest,
     #!ensure   => bare,
     provider => git,

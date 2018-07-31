@@ -311,26 +311,6 @@ dqlevel=${dq_loglevel}
     owner   => 'root',
     mode    => '0400',
   }
-  service { 'xinetd':
-    ensure  => 'running',
-    enable  => true,
-    require => Package['xinetd'],
-    }
-  #!exec { 'rsyncd':
-  #!  command   => '/sbin/chkconfig rsync on',
-  #!  require   => [Service['xinetd'],],
-  #!  subscribe => File['/etc/rsyncd.conf'],
-  #!  onlyif    => '/sbin/chkconfig --list --type xinetd rsync | grep off',
-  #!}
-  exec { 'rsyncd':
-    command   => '/bin/systemctl start rsyncd',
-    subscribe => File['/etc/rsyncd.conf'],
-    unless    => '/bin/systemctl status rsyncd.service | grep "Active: active"',
-  }
-  exec { 'bootrsyncd':
-    command   => '/bin/systemctl enable rsyncd',
-    unless    => '/bin/systemctl status rsyncd.service | grep "Active: active"',
-  }
   #!class { 'firewall': } ->
   #!firewall { '999 disable firewall':
   #!  ensure => 'stopped',

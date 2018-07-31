@@ -17,8 +17,9 @@ class tadanat::service  (
     subscribe => [File['/etc/tada/dqd.conf',
                        '/etc/init.d/dqd',
                        '/etc/tada/from-hiera.yaml',
-                       '/etc/tada/tada.conf'
+                       '/etc/tada/tada.conf',
                        ],
+                  Vcsrepo['/opt/tada/tada/hdrfunclib'],
                   Class['redis'],
                   Python::Requirements[ '/opt/tada/requirements.txt'],
                   #! Package['python-dataq', 'python-tada'],
@@ -55,4 +56,24 @@ class tadanat::service  (
     command => "/etc/patch.sh > /etc/patch.log",
     creates => "/etc/patch.log",
     }
+  service { 'xinetd':
+    ensure  => 'running',
+    enable  => true,
+    require => Package['xinetd'],
+    }
+  #!exec { 'rsyncd':
+  #!  command   => '/sbin/chkconfig rsync on',
+  #!  require   => [Service['xinetd'],],
+  #!  subscribe => File['/etc/rsyncd.conf'],
+  #!  onlyif    => '/sbin/chkconfig --list --type xinetd rsync | grep off',
+  #!}
+  exec { 'bootrsyncd':
+    command   => '/bin/systemctl enable rsyncd',
+    creates   => '/etc/systemd/system/multi-user.target.wants/rsyncd.service',
+  }
+  exec { 'rsyncd':
+    command   => '/bin/systemctl start rsyncd',
+    subscribe => File['/etc/rsyncd.conf'],
+    unless    => '/bin/systemctl status rsyncd.service | grep "Active: active"',
+  }
   }
