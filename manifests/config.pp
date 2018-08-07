@@ -8,7 +8,8 @@ class tadanat::config (
     'default_value' => 'puppet:///modules/dmo_hiera/rsync.pwd'}),
   $logging_conf   = lookup('tada_logging_conf', {
     'default_value' => 'puppet:///modules/dmo_hiera/tada-logging.yaml'}),
-  $dqcli_log_conf = lookup('dqcli_logging_conf'),
+  $dqcli_log_conf = lookup('dqcli_logging_conf', {
+    'default_value' => 'puppet:///modules/dmo_hiera/dqcli-logging.yaml'}),
   $watch_log_conf = lookup('watch_logging_conf'),
   $dq_conf     = lookup('dq_conf', {
     'default_value' => 'puppet:///modules/dmo_hiera/dq-config.json'}),

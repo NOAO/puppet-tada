@@ -4,12 +4,14 @@
     compress
     size 150M
     rotate 5
+    su tada tada
 }
 
 /var/log/tada/*.err {
     compress
     size 10k
     rotate 3
+    su tada tada
 }
 
 /var/log/rsyncd.log {
