@@ -242,7 +242,7 @@ marsversion: ${marsversion}
   }
   file {  '/etc/tada/dqd.conf':
     ensure  => 'present',
-    replace => false,
+    replace => true,
     content => "
 qname=${qname}
 dqlevel=${dq_loglevel}
