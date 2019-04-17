@@ -40,7 +40,8 @@ class tadanat::config (
   ) {
   notice("Loading tadanat::config; rsyncpwd=${rsyncpwd}")
   
-  file { [ '/var/run/tada', '/var/log/tada', '/etc/tada', '/var/tada']:
+  file { [ '/run/tada', '/var/run/tada', '/var/log/tada',
+           '/etc/tada', '/var/tada']:
     ensure => 'directory',
     owner  => 'tada',
     group  => 'tada',
