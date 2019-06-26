@@ -1,4 +1,7 @@
-
+###
+### Lines marked with "#!!" are commented out to so this can run with marsnat
+### manifests.
+###
 
 class tadanat::install (
   $fpacktgz    = lookup('fpacktgz', {
@@ -44,17 +47,18 @@ class tadanat::install (
     #!ensure_resource('package', ['libyaml'], {'ensure' => 'present'})
     #! include augeas
 
-  package { ['xinetd', 'postgresql-devel'] : }
-  yumrepo { 'ius':
-    descr      => 'ius - stable',
-    #!baseurl    => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64/',
-    baseurl    => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/7/x86_64/',
-    enabled    => 1,
-    gpgcheck   => 0,
-    priority   => 1,
-    mirrorlist => absent,
-  }
-  -> Package<| provider == 'yum' |>
+  #!!package { ['xinetd', 'postgresql-devel'] : }
+  package { ['xinetd'] : }  #!!
+  #!!yumrepo { 'ius':
+  #!!  descr      => 'ius - stable',
+  #!!  #!baseurl    => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64/',
+  #!!  baseurl    => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/7/x86_64/',
+  #!!  enabled    => 1,
+  #!!  gpgcheck   => 0,
+  #!!  priority   => 1,
+  #!!  mirrorlist => absent,
+  #!!}
+  #!!-> Package<| provider == 'yum' |>
 
 
   # These install tada,dataq from source in /opt/tada,data-queue
@@ -69,45 +73,41 @@ class tadanat::install (
       File['/opt/tada/venv', '/etc/tada/from-hiera.yaml'],
       Python::Requirements['/opt/tada/requirements.txt'],
     ],
-  } ->
-  exec { 'install tada':
-    cwd          => '/opt/tada',
-    command      => "/bin/bash -c /opt/tada/scripts/tada-valley-install.sh",
-    refreshonly  => true,
-    logoutput    => true,
-    notify       => [Service['watchpushd'], Service['dqd'], ],
-    subscribe    => [
-                     Vcsrepo['/opt/tada'], 
-                     File['/opt/tada/venv'], 
-                     File['/etc/tada/from-hiera.yaml'],
-                     Python::Requirements['/opt/tada/requirements.txt'],
-                     ],
-  }
+  } #!! ->
+  #!!exec { 'install tada':
+  #!!  cwd          => '/opt/tada',
+  #!!  command      => "/bin/bash -c /opt/tada/scripts/tada-valley-install.sh",
+  #!!  refreshonly  => true,
+  #!!  logoutput    => true,
+  #!!  notify       => [Service['watchpushd'], Service['dqd'], ],
+  #!!  subscribe    => [
+  #!!                   Vcsrepo['/opt/tada'], 
+  #!!                   File['/opt/tada/venv'], 
+  #!!                   File['/etc/tada/from-hiera.yaml'],
+  #!!                   Python::Requirements['/opt/tada/requirements.txt'],
+  #!!                   ],
+  #!!}
 
-  package{ ['epel-release', 'jemalloc'] : } ->
+  #!!package{ ['epel-release', 'jemalloc'] : } ->
   class { '::redis':
       protected_mode => 'no',
       #! bind => undef,  # Will cause DEFAULT (127.0.0.1) value to be used
       #! bind => '172.16.1.21', # @@@ mtnnat
-      bind => '0.0.0.0', # @@@ Listen to ALL interfaces
       #! bind => '127.0.0.1 172.16.1.21', # listen to Local and mtnnat.vagrant
+      #! bind => '0.0.0.0', # @@@ Listen to ALL interfaces
+    bind => '127.0.0.1', # listen to Local 
     } ->
-  package{ ['python36u-pip', 'python34-pylint'] : } ->
-    # Will try to install wrong (python3-pip) version of pip under non-SCL.
-    # We WANT:
-    #   sudo yum -y install python36u-pip
-  class { 'python' :
-    version    => 'python36u',
-    ensure     => 'latest',
-    pip        => 'absent', # 'latest' will try to install "python3-pip"
-    dev        => 'latest',
-    gunicorn   => 'absent',
-    } ->
-#!  file { '/usr/bin/python3':
-#!    ensure => 'link',
-#!    #target => '/usr/bin/python3.5',
-#!    target => '/usr/bin/python3.6',
-#!    } ->
+#!!  package{ ['python36u-pip', 'python34-pylint'] : } ->
+#!!    # Will try to install wrong (python3-pip) version of pip under non-SCL.
+#!!    # We WANT:
+#!!    #   sudo yum -y install python36u-pip
+#!!  class { 'python' :
+#!!    version    => 'python36u',
+#!!    ensure     => 'latest',
+#!!    pip        => 'absent', # 'latest' will try to install "python3-pip"
+#!!    dev        => 'latest',
+#!!    gunicorn   => 'absent',
+#!!    } ->
   python::pyvenv  { '/opt/tada/venv':
     version  => '3.6',
     owner    => 'tada',
@@ -168,14 +168,14 @@ class tadanat::install (
     system     => true,
     }
 
-  user { 'tester' :
-    ensure     => 'present',
-    comment    => 'For running TADA related tests',
-    managehome => true,
-    password   => '$1$Pk1b6yel$tPE2h9vxYE248CoGKfhR41',  # tada"Password"
-    groups     => ['tada'],
-    system     => false,
-  }
+#!!  user { 'tester' :
+#!!    ensure     => 'present',
+#!!    comment    => 'For running TADA related tests',
+#!!    managehome => true,
+#!!    password   => '$1$Pk1b6yel$tPE2h9vxYE248CoGKfhR41',  # tada"Password"
+#!!    groups     => ['tada'],
+#!!    system     => false,
+#!!  }
   vcsrepo { '/opt/tada' :
     ensure   => latest,
     #!ensure   => bare,
@@ -186,7 +186,7 @@ class tadanat::install (
     owner    => 'tada', # 'tester', # 'tada',
     group    => 'tada',
     require  => User['tada'],
-    notify   => Exec['install tada'],
+    #!! notify   => Exec['install tada'],
     } ->
   vcsrepo { '/opt/tada/tada/hdrfunclib' :
     ensure   => latest,
@@ -197,7 +197,7 @@ class tadanat::install (
     owner    => 'tada', 
     group    => 'tada',
     require  => User['tada'],
-    notify   => Exec['install tada'],
+    #! notify   => Exec['install tada'],
     } ->
   file { '/opt/tada/tests/smoke':
       ensure  => directory,

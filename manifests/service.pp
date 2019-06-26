@@ -22,8 +22,7 @@ class tadanat::service  (
                   Vcsrepo['/opt/tada/tada/hdrfunclib'],
                   Class['redis'],
                   Python::Requirements[ '/opt/tada/requirements.txt'],
-                  #! Package['python-dataq', 'python-tada'],
-                  Exec['install tada'],
+                  #!!Exec['install tada'],
                   Exec['install dataq'],
                   ],
     enable   => true,
@@ -37,8 +36,7 @@ class tadanat::service  (
                        '/etc/init.d/watchpushd'
                        ],
                   Python::Requirements[ '/opt/tada/requirements.txt'],
-                  #! Package['python-dataq', 'python-tada'],
-                  Exec['install tada'],
+                  #!!Exec['install tada'],
                   Exec['install dataq'],
                   ],
     enable    => true,
@@ -46,27 +44,21 @@ class tadanat::service  (
     path      => '/etc/init.d',
   }
   
-  file { '/etc/patch.sh':
-    replace => true,
-    source  => lookup('patch_tadanat',{
-      'default_value' => 'puppet:///modules/tadanat/patch.sh'}),
-    mode    => 'a=rx',
-    } ->
-  exec { 'patch tada':
-    command => "/etc/patch.sh > /etc/patch.log",
-    creates => "/etc/patch.log",
-    }
+#!!  file { '/etc/patch.sh':
+#!!    replace => true,
+#!!    source  => lookup('patch_tadanat',{
+#!!      'default_value' => 'puppet:///modules/tadanat/patch.sh'}),
+#!!    mode    => 'a=rx',
+#!!    } ->
+#!!  exec { 'patch tada':
+#!!    command => "/etc/patch.sh > /etc/patch.log",
+#!!    creates => "/etc/patch.log",
+#!!    }
   service { 'xinetd':
     ensure  => 'running',
     enable  => true,
     require => Package['xinetd'],
     }
-  #!exec { 'rsyncd':
-  #!  command   => '/sbin/chkconfig rsync on',
-  #!  require   => [Service['xinetd'],],
-  #!  subscribe => File['/etc/rsyncd.conf'],
-  #!  onlyif    => '/sbin/chkconfig --list --type xinetd rsync | grep off',
-  #!}
   exec { 'bootrsyncd':
     command   => '/bin/systemctl enable rsyncd',
     creates   => '/etc/systemd/system/multi-user.target.wants/rsyncd.service',

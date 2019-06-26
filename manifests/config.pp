@@ -16,7 +16,7 @@ class tadanat::config (
   $tada_conf      = lookup('tada_conf'),
   $smoke_conf     = lookup('smoke_conf'),
   $host_type      = lookup('tada_host_type', {'default_value' => 'MOUNTAIN'}),
-  $dq_loglevel    = lookup('dq_loglevel'),
+  $dq_loglevel    = lookup('dq_loglevel', {'default_value' => 'DEBUG'}),
   $qname          = lookup('qname', {'default_value' => 'transfer'}),
 
   $udp_recv_channel   = lookup('udp_recv_channel'),
@@ -26,13 +26,13 @@ class tadanat::config (
   $inotify_watches    = lookup('inotify_watches',{'default_value' => '1048576'}),
 
   # Use these to install a yaml file that TADA can use to get underlying values
-  $dq_host             = lookup('dq_host'),
-  $dq_port             = lookup('dq_port'),
+  #$dq_host             = lookup('dq_host'),
+  #$dq_port             = lookup('dq_port'),
   $natica_host         = lookup('natica_host'),
   $natica_port         = lookup('natica_port'),
   $natica_timeout      = lookup('natica_timeout'),
-  $test_mtn_host       = lookup('test_mtn_host'),
-  $valley_host         = lookup('valley_host'),
+#!!  $test_mtn_host       = lookup('test_mtn_host'),
+#!!  $valley_host         = lookup('valley_host'),
   $dataqversion        = lookup('dataqversion'),
   $tadaversion         = lookup('tadanatversion'),
   $hdrfunclibversion   = lookup('hdrfunclibversion'),
@@ -176,15 +176,15 @@ class tadanat::config (
   file {  '/etc/tada/from-hiera.yaml':
     ensure  => 'present',
     replace => true,
+#!dq_host: ${dq_host}
+#!dq_port: ${dq_port}
+#!valley_host: ${valley_host}
     content => "---
-dq_host: ${dq_host}
-dq_port: ${dq_port}
 dq_loglevel: ${dq_loglevel}
 natica_host: ${natica_host}
 natica_port: ${natica_port}
 natica_timeout: ${natica_timeout}
 test_mtn_host: ${test_mtn_host}
-valley_host: ${valley_host}
 tadaversion: ${tadaversion}
 dataqversion: ${dataqversion}
 marsversion: ${marsversion}
