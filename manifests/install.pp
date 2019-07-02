@@ -14,6 +14,7 @@ class tadanat::install (
     'default_value' => 'master'}),
   $marsnat_pubkey = lookup('mars_pubkey', {
     'default_value' => 'puppet:///modules/dmo_hiera/spdev1.id_dsa.pub'}),
+  $tadanat_replace = lookup('tadanat_replace', {'default_value' => true })
   ) {
   notice("Loading tadanat::install; tadanatversion=${tadanatversion}, dataqversion=${dataqversion}")
   notify{"tadanat::install.pp":}
@@ -29,7 +30,7 @@ class tadanat::install (
     } ->
     file { '/opt/tada-release':
       ensure  => 'present',
-      replace => false,
+      replace => "${tadanat_replace}",
       content => "$stamp
       ",
       #'/var/tada', # do NOT change history on reprovision!
@@ -59,7 +60,7 @@ class tadanat::install (
   # Install dataq from source in /opt/data-queue
 file { '/etc/mars/dataq-mars-install.sh' :
     ensure  => present,
-    replace => true,
+    replace => "${tadanat_replace}",
     source  => 'puppet:///modules/tadanat/dataq-mars-install.sh',
   } ->
   exec { 'install dataq':
@@ -213,13 +214,13 @@ file { '/etc/mars/dataq-mars-install.sh' :
     } ->
   file { '/opt/data-queue/dataq/actions.py' :    
     ensure => 'present',
-    replace => true,
+    replace => "${tadanat_replace}",
     source => 'puppet:///modules/tadanat/actions.py',
   } 
 
   file { '/usr/local/share/applications/fpack.tgz':
     ensure => 'present',
-    replace => false,
+    replace => "${tadanat_replace}",
     source => "$fpacktgz",
     notify => Exec['unpack fpack'],
   } 
@@ -230,18 +231,18 @@ file { '/etc/mars/dataq-mars-install.sh' :
   } 
   file { '/usr/local/bin/fitsverify' :
     ensure  => present,
-    replace => false,
+    replace => "${tadanat_replace}",
     source  => 'puppet:///modules/tadanat/fitsverify',
   } 
   file { '/usr/local/bin/fitscopy' :
     ensure  => present,
-    replace => false,
+    replace => "${tadanat_replace}",
     source  => 'puppet:///modules/tadanat/fitscopy',
   }
   # just so LOGROTATE doesn't complain if it runs before we rsync
   file { '/var/log/rsyncd.log' :
     ensure  => present,
-    replace => false,
+    replace => "${tadanat_replace}",
   }
 
 }
