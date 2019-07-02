@@ -17,7 +17,7 @@ class tadanat::config (
   $smoke_conf     = lookup('smoke_conf'),
   $host_type      = lookup('tada_host_type', {'default_value' => 'MOUNTAIN'}),
   $dq_loglevel    = lookup('dq_loglevel', {'default_value' => 'DEBUG'}),
-  $qname          = lookup('qname', {'default_value' => 'transfer'}),
+  $qname          = lookup('qname', {'default_value' => 'ingest'}),
 
   $udp_recv_channel   = lookup('udp_recv_channel'),
   $udp_send_channel   = lookup('udp_send_channel'),
@@ -179,12 +179,12 @@ class tadanat::config (
 #!dq_host: ${dq_host}
 #!dq_port: ${dq_port}
 #!valley_host: ${valley_host}
+#!test_mtn_host: ${test_mtn_host}
     content => "---
 dq_loglevel: ${dq_loglevel}
 natica_host: ${natica_host}
 natica_port: ${natica_port}
 natica_timeout: ${natica_timeout}
-test_mtn_host: ${test_mtn_host}
 tadaversion: ${tadaversion}
 dataqversion: ${dataqversion}
 marsversion: ${marsversion}

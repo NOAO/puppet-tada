@@ -12,7 +12,7 @@
 source /etc/tada/dqd.conf
 dir="/var/tada"
 #!cmd="/usr/bin/dqsvcpop --loglevel ${dqlevel} --queue ${qname}"
-cmd="/opt/tada/venv/bin/dqsvcpop --loglevel ${dqlevel} --queue ${qname}"
+cmd="/opt/mars/venv/bin/dqsvcpop --loglevel ${dqlevel} --queue submit"
 
 user="tada"
 

@@ -1,4 +1,4 @@
-###
+##
 ### Lines marked with "#!!" are commented out to so this can run with marsnat
 ### manifests.
 ###
@@ -19,11 +19,8 @@ class tadanat::install (
   notify{"tadanat::install.pp":}
   #include git
 
-
-
   # Top-level dependency to support full tada re-provision
   # To force re-provision: "rm /opt/tada-release" on BOTH mtn and valley
-  #! $stamp=strftime("%Y-%m-%d %H:%M:%S")
   $stamp = generate('/bin/date', '+%Y-%m-%d %H:%M:%S')
   exec { 'provision tada':
     path    => '/usr/bin:/usr/sbin:/bin',
@@ -38,7 +35,7 @@ class tadanat::install (
       #'/var/tada', # do NOT change history on reprovision!
       notify  => [File['/etc/tada', '/var/log/tada', '/var/run/tada',
                        '/home/tada/.tada', '/home/tester/.tada'],
-                  Vcsrepo['/opt/tada', '/opt/tada-cli','/opt/data-queue' ]
+                  Vcsrepo['/opt/tada', '/opt/data-queue' ]
                   ]
     }
   
@@ -51,8 +48,7 @@ class tadanat::install (
   package { ['xinetd'] : }  #!!
   #!!yumrepo { 'ius':
   #!!  descr      => 'ius - stable',
-  #!!  #!baseurl    => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64/',
-  #!!  baseurl    => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/7/x86_64/',
+  #!!  baseurl  => 'http://dl.iuscommunity.org/pub/ius/stable/CentOS/7/x86_64/',
   #!!  enabled    => 1,
   #!!  gpgcheck   => 0,
   #!!  priority   => 1,
@@ -60,17 +56,21 @@ class tadanat::install (
   #!!}
   #!!-> Package<| provider == 'yum' |>
 
-
-  # These install tada,dataq from source in /opt/tada,data-queue
+  # Install dataq from source in /opt/data-queue
+file { '/etc/mars/dataq-mars-install.sh' :
+    ensure  => present,
+    replace => true,
+    source  => 'puppet:///modules/tadanat/dataq-mars-install.sh',
+  } ->
   exec { 'install dataq':
     cwd     => '/opt/data-queue',
-    command => "/bin/bash -c  /opt/data-queue/scripts/dataq-valley-install.sh",
+    command => "/bin/bash -c  /etc/mars/dataq-mars-install.sh",
     refreshonly  => true,
     logoutput    => true,
     notify  => [Service['watchpushd'], Service['dqd'], ],
     subscribe => [
       Vcsrepo['/opt/data-queue'], 
-      File['/opt/tada/venv', '/etc/tada/from-hiera.yaml'],
+      File['/opt/mars/venv', '/etc/tada/from-hiera.yaml'],
       Python::Requirements['/opt/tada/requirements.txt'],
     ],
   } #!! ->
@@ -87,7 +87,6 @@ class tadanat::install (
   #!!                   Python::Requirements['/opt/tada/requirements.txt'],
   #!!                   ],
   #!!}
-
   #!!package{ ['epel-release', 'jemalloc'] : } ->
   class { '::redis':
       protected_mode => 'no',
@@ -108,19 +107,19 @@ class tadanat::install (
 #!!    dev        => 'latest',
 #!!    gunicorn   => 'absent',
 #!!    } ->
-  python::pyvenv  { '/opt/tada/venv':
-    version  => '3.6',
-    owner    => 'tada',
-    group    => 'tada',
-    require  => [ User['tada'], ],
-  } ->
+#!!  python::pyvenv  { '/opt/mars/venv':
+#!!    version  => '3.6',
+#!!    owner    => 'devops',
+#!!    group    => 'devops',
+#!!    require  => [ User['devops'], ],
+#!!  } ->
   python::requirements  { '/opt/tada/requirements.txt':
-    virtualenv => '/opt/tada/venv',
+    virtualenv => '/opt/mars/venv',
     pip_provider => 'pip3',
-    owner      => 'tada',
-    group      => 'tada',
+    owner      => 'devops',
+    group      => 'devops',
     forceupdate  => true,
-    require    => [ User['tada'], ],
+    require    => [ User['devops'], ],
   }
   #!->
   #!python::pip { 'pylint' :
@@ -129,8 +128,6 @@ class tadanat::install (
   #! virtualenv => '/opt/tada/venv',   
   #! owner      => 'tada',
   #! }
-  
- 
 
   # Some old/vulnerable NSS is used for SSL within cURL library when you
   # go to some url, so it's rejected. So within this machine you have
@@ -149,25 +146,25 @@ class tadanat::install (
   #!    name   => ['nss', 'curl', 'libcurl'],
   #!    ensure => 'latest',
   #!  } ->
-  vcsrepo { '/opt/tada-cli' :
-    ensure   => latest,
-    #!ensure   => bare,
-    provider => git,
-    #!source   => 'git@github.com:NOAO/tada-cli.git',
-    source   => 'https://github.com/NOAO/tada-cli.git',
-    revision => 'master',
-  }
-  group { 'tada':
-    ensure => 'present',
-  } -> 
-  user { 'tada' :
-    ensure     => 'present',
-    comment    => 'For running TADA related services and actions',
-    managehome => true,
-    password   => '$1$Pk1b6yel$tPE2h9vxYE248CoGKfhR41',  # tada"Password"
-    system     => true,
-    }
-
+#!!  vcsrepo { '/opt/tada-cli' :
+#!!    ensure   => latest,
+#!!    #!ensure   => bare,
+#!!    provider => git,
+#!!    #!source   => 'git@github.com:NOAO/tada-cli.git',
+#!!    source   => 'https://github.com/NOAO/tada-cli.git',
+#!!    revision => 'master',
+#!!  }
+#!!  group { 'tada':
+#!!    ensure => 'present',
+#!!  } -> 
+#!!  user { 'tada' :
+#!!    ensure     => 'present',
+#!!    comment    => 'For running TADA related services and actions',
+#!!    managehome => true,
+#!!    password   => '$1$Pk1b6yel$tPE2h9vxYE248CoGKfhR41',  # tada"Password"
+#!!    system     => true,
+#!!    }
+#!!
 #!!  user { 'tester' :
 #!!    ensure     => 'present',
 #!!    comment    => 'For running TADA related tests',
@@ -183,22 +180,22 @@ class tadanat::install (
     #!source   => 'git@github.com:NOAO/tadanat',
     source   => 'https://github.com/NOAO/tadanat.git',
     revision => "${tadanatversion}",
-    owner    => 'tada', # 'tester', # 'tada',
-    group    => 'tada',
-    require  => User['tada'],
+    owner    => 'devops', # 'tester', # 'tada',
+    group    => 'devops',
+    require  => User['devops'],
     #!! notify   => Exec['install tada'],
     } ->
-  vcsrepo { '/opt/tada/tada/hdrfunclib' :
-    ensure   => latest,
-    #!ensure   => bare,
-    provider => git,
-    source   => 'https://github.com/NOAO/hdrfunclib.git',
-    revision => "${hdrfunclibversion}", 
-    owner    => 'tada', 
-    group    => 'tada',
-    require  => User['tada'],
-    #! notify   => Exec['install tada'],
-    } ->
+#!!  vcsrepo { '/opt/tada/tada/hdrfunclib' :
+#!!    ensure   => latest,
+#!!    #!ensure   => bare,
+#!!    provider => git,
+#!!    source   => 'https://github.com/NOAO/hdrfunclib.git',
+#!!    revision => "${hdrfunclibversion}", 
+#!!    owner    => 'tada', 
+#!!    group    => 'tada',
+#!!    require  => User['tada'],
+#!!    #! notify   => Exec['install tada'],
+#!!    } ->
   file { '/opt/tada/tests/smoke':
       ensure  => directory,
       mode    => '0774',
@@ -206,16 +203,19 @@ class tadanat::install (
       }
   vcsrepo { '/opt/data-queue' :
     ensure   => latest,
-    #!ensure   => bare,
     provider => git,
-    #!source   => 'git@github.com:NOAO/data-queue.git',
     source   => 'https://github.com/NOAO/data-queue.git',
     revision => "${dataqversion}",
-    owner    => 'tada', # 'tester', #'tada',
-    group    => 'tada',
-    require  => User['tada'],
+    owner    => 'devops', # 'tester', #'tada',
+    group    => 'devops',
+    require  => User['devops'],
     notify   => Exec['install dataq'],
-  }
+    } ->
+  file { '/opt/data-queue/dataq/actions.py' :    
+    ensure => 'present',
+    replace => true,
+    source => 'puppet:///modules/tadanat/actions.py',
+  } 
 
   file { '/usr/local/share/applications/fpack.tgz':
     ensure => 'present',
@@ -243,18 +243,6 @@ class tadanat::install (
     ensure  => present,
     replace => false,
   }
-
-  #!concat { '/home/vagrant/.ssh/authorized_keys':
-  #!  ensure_newline => true,
-  #!  owner          => 'vagrant',
-  #!  group          => 'vagrant',
-  #!  mode           => '0600',
-  #!  replace        => false,
-  #!} 
-  #!concat::fragment { 'authorize marsnat':
-  #!  target         => '/home/vagrant/.ssh/authorized_keys',
-  #!  source         => "${marsnat_pubkey}",
-  #!}
 
 }
 

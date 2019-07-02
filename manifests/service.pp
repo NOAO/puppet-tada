@@ -10,8 +10,8 @@ class tadanat::service  (
 
   # For exec, use something like:
     #   unless  => '/usr/bin/pgrep -f "manage.py runserver"',
-    # to prevent running duplicate.  Puppet is supposed to check process table so
-    # duplicate should never happen UNLESS done manually.
+    # to prevent running duplicate.  Puppet is supposed to check process table
+    # so duplicate should never happen UNLESS done manually.
   service { 'dqd':
     ensure   => 'running',
     subscribe => [File['/etc/tada/dqd.conf',
@@ -19,10 +19,8 @@ class tadanat::service  (
                        '/etc/tada/from-hiera.yaml',
                        '/etc/tada/tada.conf',
                        ],
-                  Vcsrepo['/opt/tada/tada/hdrfunclib'],
                   Class['redis'],
                   Python::Requirements[ '/opt/tada/requirements.txt'],
-                  #!!Exec['install tada'],
                   Exec['install dataq'],
                   ],
     enable   => true,
